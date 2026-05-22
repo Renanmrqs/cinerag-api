@@ -17,7 +17,7 @@ class Users(Base):
     id = Column(BigInteger, primary_key=True)
     email = Column(Text, nullable=False, unique=True)
     password = Column(Text, nullable=False) 
-    username = Column(Text, nullable=False)
+    username = Column(Text, nullable=False, unique=True)
 
 ##
 # MODELO PARA TABELA MOVIES
