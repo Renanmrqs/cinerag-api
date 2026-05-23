@@ -27,14 +27,14 @@ def get_current_token(token: str = Depends(security_rote)):
 #####
 ### rotas
 # rota de puxar todos os usuarios
-@router.get("/users", tags=['auth'])
+@router.get("/auth/users", tags=['auth'])
 def read_all_users(db: Session = Depends(get_db), user: str = Depends(get_current_user)):
     return get_users(db)
 
 
 # #####registro de usuario
 # ##faz a rota de criar o registro    
-@router.post("/register", tags=['auth'])
+@router.post("/auth/register", tags=['auth'])
 def post_register(register: RegisterRequest, db: Session = Depends(get_db)):
     try:
         password_criptografed = pwd_context.hash(register.password)
@@ -47,7 +47,7 @@ def post_register(register: RegisterRequest, db: Session = Depends(get_db)):
 
 
 # faz rota do usuario logar na aplicacao
-@router.post("/login", tags=['auth'])
+@router.post("/auth/login", tags=['auth'])
 def post_login(form_data: security.OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     login_return = get_users_by_identifier(form_data.username, db)
     if not login_return:
@@ -64,7 +64,7 @@ def post_login(form_data: security.OAuth2PasswordRequestForm = Depends(), db: Se
 
 ## rota de logout 
 
-@router.post(f'/logout', tags=['auth'])
+@router.post(f'/auth/logout', tags=['auth'])
 def post_logout(token: str = Depends(get_current_token), user: str = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         tk = add_token(db, token)
@@ -72,7 +72,7 @@ def post_logout(token: str = Depends(get_current_token), user: str = Depends(get
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'token already in table')
 
-@router.patch(f'/users/complete-profile', tags=['auth'])
+@router.patch(f'/auth/users/complete-profile', tags=['auth'])
 def complete_profile(register: RegisterGoogle, email: str = Depends(get_current_user),  db: Session = Depends(get_db)):
     try:
         password_criptografed = pwd_context.hash(register.password)
