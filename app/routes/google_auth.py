@@ -6,12 +6,14 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from app.database import get_db
 from sqlalchemy.orm import Session
+from app.auth import generate_token
+from app.services.auth import get_users_by_identifier, create_register
 
 load_dotenv()
 
 router = APIRouter()
 
-oauth = OAuth
+oauth = OAuth()
 oauth.register(
     name="google",
     client_id=os.environ['GOOGLE_CLIENT_ID'],
@@ -24,7 +26,7 @@ oauth.register(
 
 @router.get("/auth/google", tags=["auth"])
 async def auth_google(request: Request):
-    return await oauth.google.authorize_redirect(request, redirect_url="http://localhost:8000/auth/google/callback")
+    return await oauth.google.authorize_redirect(request, redirect_uri="http://localhost:8080/auth/google/callback")
 
 @router.get("/auth/google/callback", tags=["auth"])
 async def google_callback(request: Request, db: Session = Depends(get_db)):
@@ -33,17 +35,15 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
         user_info = token.get("userinfo") or {}
 
         # Extract user details
-        username = user_info.get("email")  # Use email as username
+        email = user_info.get("email")  # Use email as username
 
         # Generate a JWT token with auth_method="google"
-        access_token = create_access_token(
-            settings, 
-            data={"sub": username}, 
-            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-            auth_method="google"
-        )
+        user = get_users_by_identifier(email, db)
+        if not user:
+            create_register(db, email, email, "google_oauth")
+        access_token = generate_token(email)
 
-        return {"access_token": access_token, "token": token}
+        return {"access_token": access_token, "token_type": "bearer"}
     except Exception as e:
         import traceback
         print("Error:", traceback.format_exc())  # Debugging step

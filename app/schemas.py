@@ -11,3 +11,7 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     email: EmailStr
+
+class RegisterGoogle(BaseModel):
+    username: str
+    password: str

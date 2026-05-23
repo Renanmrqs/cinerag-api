@@ -4,8 +4,8 @@ from app.database import get_db
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, security, HTTPException
 from app.auth import pwd_context, generate_token, verify_token
-from app.services.auth import get_users_by_identifier, get_users, create_register
-from app.schemas import RegisterRequest
+from app.services.auth import get_users_by_identifier, get_users, create_register, update_register
+from app.schemas import RegisterRequest, RegisterGoogle
 
 
 
@@ -71,4 +71,12 @@ def post_logout(token: str = Depends(get_current_token), user: str = Depends(get
         return {'message': 'token add', 'data': tk}
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'token already in table')
-    
+
+@router.patch(f'/users/complete-profile', tags=['auth'])
+def complete_profile(register: RegisterGoogle, email: str = Depends(get_current_user),  db: Session = Depends(get_db)):
+    try:
+        password_criptografed = pwd_context.hash(register.password)
+        update_register(db, register.username, password_criptografed, email)
+        return {"message": f"user {register.username} updated"}
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail=f'{register.username} not in table')

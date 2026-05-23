@@ -1,6 +1,7 @@
 from app.models import Users
 from app.models import Tokens
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 def add_token(db: Session, token: str):
     token_created = Tokens(token=token)
@@ -21,7 +22,7 @@ def get_users(db: Session):
 
 # busca user pelo nome
 def get_users_by_identifier(identifier, db: Session):
-    user = db.query(Users).filter(Users.username == identifier or Users.email == identifier).first()
+    user = db.query(Users).filter(or_(Users.username == identifier, Users.email == identifier)).first()
     return user
 
 
@@ -29,6 +30,14 @@ def get_users_by_identifier(identifier, db: Session):
 def create_register(db: Session, email, username, password):
     user = Users(email=email, username=username, password=password)
     db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def update_register(db: Session, username, password, email):
+    user = db.query(Users).filter(Users.email == email).first()
+    user.username = username
+    user.password = password
     db.commit()
     db.refresh(user)
     return user

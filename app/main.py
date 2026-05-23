@@ -1,8 +1,11 @@
 from fastapi import FastAPI
-from app.routes import tmdb, auth
+from app.routes import tmdb, auth, google_auth
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+import os
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,6 +16,7 @@ app.add_middleware(
 
 app.include_router(tmdb.router)
 app.include_router(auth.router)
+app.include_router(google_auth.router)
 
 @app.get("/health", tags=["health"])
 def health():
