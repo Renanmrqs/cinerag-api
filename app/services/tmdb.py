@@ -37,17 +37,35 @@ def get_films(film) -> dict:
 function for get the median for reviews of one movie.
 using for generate this, return general of review and save on database
 """
-def get_score(list_review) -> list:
-    pass
+def get_score(list_review) -> int:
+    url = "https://sentimentai-api.onrender.com/predict"
+    sentiment_score_dict = {'positive': 0, 'negative': 0,
+    'trust': 0}
+    total_reviews = len(list_review)
+    
+    for review in list_review:
+        response = requests.post(url, json={"text": review})
+        data = response.json()
+        match data['sentiment']:
+            case 'positive':
+                sentiment_score_dict['positive'] += 1
+            case 'negative':
+                sentiment_score_dict['negative'] += 1
+        sentiment_score_dict['trust'] += data['trust']
+    media = sentiment_score_dict['trust'] / total_reviews
+    sentiment_score_dict['trust'] = media    
+
+    return sentiment_score_dict
+
+print(get_score(["horrible. i hated", 'miserable filme, ridiculos i hated', 'great film dude, i loved it', 'awlful film, horrible again, i dont like her', 'great, i liked it', 'amazinggg filme, greates all time']))
 
 """
 function for search a film with id, one film something
 """
 def get_film_id(id, db) -> dict:
     film = db.query(Movies).filter(Movies.id == id).first()
-
     if film:
-        return film.sentiment_score
+        return film.sentiment_trust, film.sentiment    
     else:
         
         url = "https://api.themoviedb.org/3/movie/{movie_id}/reviews"
@@ -62,13 +80,22 @@ def get_film_id(id, db) -> dict:
             if result["content"] not in reviews:
                 reviews.append(result["content"])    
         """
-        pegar o reviw, retornar so o review, dps usar GET /movie/{id}
-        pra pegar as infors do filme que o sentimento foi gerado, pegar o sentimento todo
-        e salvar no banco de dados, para dpois n precisar usar toda hora a api do tmdb
+        pega o reviw, retornar so o review, dps usar GET /movie/{id}
+        pra pegar as infors do filme que o sentimento foi gerado, pega o sentimento todo
+        e salva no banco de dados, para dpois n precisar usar toda hora a api do tmdb
         """
-        # review_score = get_score(reviews)
+        review_score = get_score(reviews)
+        if review_score['positive'] > review_score['negative']:
+            return 'positive', review_score['trust']
+        elif review_score['negative'] > review_score['positive']:
+            return 'negative', review_score['trust']
+        else:
+            return 'mixed', review_score['trust']
+        
 
-
+    """
+    fazeer o salvamento no banco de dados para pertinencia
+    """
 
 
             
