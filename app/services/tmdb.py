@@ -1,10 +1,12 @@
-from fastapi import Depends
 from app.models import Movies
 import requests
-from app.models import Movies
 from sqlalchemy.orm import Session
-from app.database import get_db
+from datetime import date
 
+headers = {
+"accept": "application/json",
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjYTA2ZTY3MzM2ZTg0M2FhZjE3NTQ0NTIyOGI4MzgzOSIsIm5iZiI6MTc3OTM5MTE3NC4zNzIsInN1YiI6IjZhMGY1YWM2ZjYyY2MwNDYwZDNkZWUwMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.FvRvl9AxiznUHTog4JvdPPVjbgUrHyAr65iecv3cVQM"
+}
 
 
 """
@@ -13,10 +15,6 @@ for show the user when her searched
 """
 def get_films(film) -> dict:
     url = "https://api.themoviedb.org/3/search/movie"
-    headers = {
-    "accept": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjYTA2ZTY3MzM2ZTg0M2FhZjE3NTQ0NTIyOGI4MzgzOSIsIm5iZiI6MTc3OTM5MTE3NC4zNzIsInN1YiI6IjZhMGY1YWM2ZjYyY2MwNDYwZDNkZWUwMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.FvRvl9AxiznUHTog4JvdPPVjbgUrHyAr65iecv3cVQM"
-    }
     films_listed = []
     response = requests.get(url, headers=headers, params={"query": f"{film}"})
     data = response.json()
@@ -34,10 +32,9 @@ def get_films(film) -> dict:
 
 
 """
-function for get the median for reviews of one movie.
-using for generate this, return general of review and save on database
+auxiliar function: to search my own predict model, using the reviews from tmdb
 """
-def get_score(list_review) -> int:
+def get_movie_sentiment(list_review: list) -> dict:
     url = "https://sentimentai-api.onrender.com/predict"
     sentiment_score_dict = {'positive': 0, 'negative': 0,
     'trust': 0}
@@ -54,61 +51,63 @@ def get_score(list_review) -> int:
         sentiment_score_dict['trust'] += data['trust']
     media = sentiment_score_dict['trust'] / total_reviews
     sentiment_score_dict['trust'] = media    
-
     return sentiment_score_dict
 
-print(get_score(["horrible. i hated", 'miserable filme, ridiculos i hated', 'great film dude, i loved it', 'awlful film, horrible again, i dont like her', 'great, i liked it', 'amazinggg filme, greates all time']))
 
 """
-function for search a film with id, one film something
+auxiliar function: using for saving the data of movies if not in db
 """
-def get_film_id(id, db) -> dict:
-    film = db.query(Movies).filter(Movies.id == id).first()
-    if film:
-        return film.sentiment_trust, film.sentiment    
+def get_detail_movie(id: int) -> dict:
+    url = f"https://api.themoviedb.org/3/movie/{id}"
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return data
+
+
+"""
+auxiliar function: using for searchin each reviews for a movie id
+"""
+def get_reviews_from_movies(id: int) -> dict:
+    url = f"https://api.themoviedb.org/3/movie/{id}/reviews"
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return data
+
+
+"""
+function for search a film with id, return score(positive or negative or mixed and trusted)
+and save this on db for pertinence
+"""
+def get_film_score(id ,db: Session) -> dict:
+    movie = db.query(Movies).filter(Movies.id == id).first()
+    if movie:
+        return {'sentiment': movie.sentiment, 'trust': movie.sentiment_trust, 'title': movie.title}
+    data = get_reviews_from_movies(id)
+    reviews = []
+    for result in data["results"]:
+        if result["content"] not in reviews:
+            reviews.append(result["content"])    
+
+
+    # using the movie sentiment and detail for saving on db
+
+    movie_sentiment = get_movie_sentiment(reviews[:10]) 
+    detail_movie = get_detail_movie(id)
+    
+    if movie_sentiment['positive'] > movie_sentiment['negative']:
+        sentiment = 'positive'
+    elif movie_sentiment['negative'] > movie_sentiment['positive']:
+        sentiment = 'negative'
     else:
-        
-        url = "https://api.themoviedb.org/3/movie/{movie_id}/reviews"
-        headers = {
-        "accept": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjYTA2ZTY3MzM2ZTg0M2FhZjE3NTQ0NTIyOGI4MzgzOSIsIm5iZiI6MTc3OTM5MTE3NC4zNzIsInN1YiI6IjZhMGY1YWM2ZjYyY2MwNDYwZDNkZWUwMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.FvRvl9AxiznUHTog4JvdPPVjbgUrHyAr65iecv3cVQM"
-        }
-        response = requests.get(url, headers=headers, params={"query": f"{id}"})
-        data = response.json()
-        reviews = []
-        for result in data["results"]:
-            if result["content"] not in reviews:
-                reviews.append(result["content"])    
-        """
-        pega o reviw, retornar so o review, dps usar GET /movie/{id}
-        pra pegar as infors do filme que o sentimento foi gerado, pega o sentimento todo
-        e salva no banco de dados, para dpois n precisar usar toda hora a api do tmdb
-        """
-        review_score = get_score(reviews)
-        if review_score['positive'] > review_score['negative']:
-            return 'positive', review_score['trust']
-        elif review_score['negative'] > review_score['positive']:
-            return 'negative', review_score['trust']
-        else:
-            return 'mixed', review_score['trust']
+        sentiment = 'mixed'
+
+    movie = Movies(id=detail_movie['id'], title=detail_movie['title'], sentiment_trust=movie_sentiment['trust'], sentiment=sentiment, analyzed_at=date.today())
+    db.add(movie)
+    db.commit()
+    db.refresh(movie)
+    return {'sentiment': sentiment, 'trust': movie_sentiment['trust'], 'title': detail_movie['title']}
+
+
         
 
-    """
-    fazeer o salvamento no banco de dados para pertinencia
-    """
 
-
-            
-# url = "https://api.themoviedb.org/3/movie/550/reviews"
-# headers = {
-# "accept": "application/json",
-# "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjYTA2ZTY3MzM2ZTg0M2FhZjE3NTQ0NTIyOGI4MzgzOSIsIm5iZiI6MTc3OTM5MTE3NC4zNzIsInN1YiI6IjZhMGY1YWM2ZjYyY2MwNDYwZDNkZWUwMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.FvRvl9AxiznUHTog4JvdPPVjbgUrHyAr65iecv3cVQM"
-# }
-# response = requests.get(url, headers=headers)
-# data = response.json()
-# print(data)
-# for result in data["results"]:
-#     reviews = []
-#     if result["content"] not in reviews:
-#         reviews.append(result["content"])    
-# print(reviews)

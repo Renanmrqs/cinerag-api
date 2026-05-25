@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, CheckConstraint
+from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, CheckConstraint, Float
 from sqlalchemy.orm import declarative_base
 from datetime import datetime, timezone, timedelta
 import enum
@@ -26,7 +26,7 @@ class Movies(Base):
     __tablename__ = "movies"
     id = Column(BigInteger, primary_key=True, autoincrement=False)
     title = Column(Text, nullable=False)
-    sentiment_trust = Column(Integer, nullable=False)
+    sentiment_trust = Column(Float, nullable=False)
     sentiment = Column(Text, nullable=False)
     analyzed_at = Column(DateTime(timezone=True), default=actual_hour)
     
