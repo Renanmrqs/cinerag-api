@@ -11,7 +11,7 @@ from app.schemas import RegisterRequest, RegisterGoogle
 
 # verificações de login e funcoes auxiliares
 router = APIRouter()
-security_rote = security.OAuth2PasswordBearer(tokenUrl="login")
+security_rote = security.OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(security_rote)):
     blacklist = read_tokens(db, token)

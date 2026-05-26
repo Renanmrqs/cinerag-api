@@ -49,6 +49,8 @@ def get_movie_sentiment(list_review: list) -> dict:
             case 'negative':
                 sentiment_score_dict['negative'] += 1
         sentiment_score_dict['trust'] += data['trust']
+    if total_reviews <= 0:
+        return sentiment_score_dict
     media = sentiment_score_dict['trust'] / total_reviews
     sentiment_score_dict['trust'] = media    
     return sentiment_score_dict
@@ -79,14 +81,15 @@ function for search a film with id, return score(positive or negative or mixed a
 and save this on db for pertinence
 """
 def get_film_score(id ,db: Session) -> dict:
-    movie = db.query(Movies).filter(Movies.id == id).first()
-    if movie:
-        return {'sentiment': movie.sentiment, 'trust': movie.sentiment_trust, 'title': movie.title}
     data = get_reviews_from_movies(id)
     reviews = []
     for result in data["results"]:
-        if result["content"] not in reviews:
-            reviews.append(result["content"])    
+        reviews.append(result["content"])  
+    
+    movie = db.query(Movies).filter(Movies.id == id).first()
+    if movie:
+        return {'sentiment': movie.sentiment, 'trust': movie.sentiment_trust, 'title': movie.title, 'sample_reviews': reviews[:3]}
+  
 
 
     # using the movie sentiment and detail for saving on db
@@ -105,9 +108,11 @@ def get_film_score(id ,db: Session) -> dict:
     db.add(movie)
     db.commit()
     db.refresh(movie)
-    return {'sentiment': sentiment, 'trust': movie_sentiment['trust'], 'title': detail_movie['title']}
+    return {'sentiment': sentiment, 'trust': movie_sentiment['trust'], 'title': detail_movie['title'], 'sample_reviews': reviews[:3]}
 
-
+    """_summary_
+    retornar ao menos 3 reviews por filme sacou
+    """
         
 
 
