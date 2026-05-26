@@ -26,7 +26,7 @@ oauth.register(
 
 @router.get("/auth/google", tags=["auth"])
 async def auth_google(request: Request):
-    return await oauth.google.authorize_redirect(request, redirect_uri="http://localhost:8080/auth/google/callback")
+    return await oauth.google.authorize_redirect(request, redirect_uri="http://localhost:8000/auth/google/callback")
 
 @router.get("/auth/google/callback", tags=["auth"])
 async def google_callback(request: Request, db: Session = Depends(get_db)):
