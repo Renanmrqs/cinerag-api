@@ -18,7 +18,10 @@ def read_tokens(db: Session, token):
 def get_users(db: Session):
     return db.query(Users).all()
 
-
+#retorna id do user
+def get_user_id(name, db: Session):
+    user = db.query(Users).filter(Users.username == name).first()
+    return user.id
 
 # busca user pelo nome
 def get_users_by_identifier(identifier, db: Session):

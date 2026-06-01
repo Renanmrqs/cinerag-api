@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, CheckConstraint, Float
+from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, CheckConstraint, Float, Boolean, UniqueConstraint
 from sqlalchemy.orm import declarative_base
 from datetime import datetime, timezone, timedelta
 import enum
@@ -29,7 +29,7 @@ class Movies(Base):
     sentiment_trust = Column(Float, nullable=False)
     sentiment = Column(Text, nullable=False)
     analyzed_at = Column(DateTime(timezone=True), default=actual_hour)
-    
+    has_reviews =  Column(Boolean, default=True)
     __table_args__ = (
     CheckConstraint("sentiment IN ('positive', 'negative', 'mixed')", name="check_sentiment_valid"),
     )
@@ -44,6 +44,11 @@ class Favorites(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
     movie_id = Column(BigInteger, ForeignKey("movies.id"), nullable=False)
     added_at = Column(DateTime(timezone=True), default=actual_hour)
+    
+    __table_args__ = (
+        UniqueConstraint(user_id, movie_id),
+    )
+
 
 ##
 # MODELO PARA A TABELA HISTORICO DE PESQUISAS

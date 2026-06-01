@@ -18,15 +18,21 @@ def get_films(film) -> dict:
     films_listed = []
     response = requests.get(url, headers=headers, params={"query": f"{film}"})
     data = response.json()
+    
     for result in data['results']:
+        reviews = get_reviews_from_movies(result['id'])
+
         films = {'id': '', 'title': '', 'language': '', 'overview': '', 'release_date': ''}
         if result['id'] not in [films_listed]:  
             films.update({'id': result['id'], 
             'title': result['title'],
             'language': result['original_language'],
             'overview': result['overview'],
-            'release_date': result['release_date']
+            'release_date': result['release_date'],
+            'has_reviews': True
             })
+            if len(reviews['results']) < 1:
+                films.update({'has_reviews': False})
             films_listed.append(films)
     return films_listed
 
