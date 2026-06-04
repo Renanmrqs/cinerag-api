@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routes import tmdb, auth, google_auth, favorites
+from app.ws import websocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import os
@@ -20,7 +21,7 @@ app.add_middleware(
 )
 
 
-
+app.include_router(websocket.router)
 app.include_router(tmdb.router)
 app.include_router(auth.router)
 app.include_router(google_auth.router)
