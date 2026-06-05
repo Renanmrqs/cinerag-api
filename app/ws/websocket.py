@@ -5,6 +5,7 @@ from app.database import get_db
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.services.chat import positive_movie, smaller_trusted, most_trusted, negative_movie, mixed_movie, count_films, first_added, last_added
+from app.services.gemini import gemini_func
 
 router = APIRouter()
 
@@ -40,6 +41,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str, db: Session = Dep
                 result = last_added(username, db)
                 await manager.send_personal_message(result, username)
             else:
-                await manager.send_personal_message(f"Message text was: {data}", username)
+                result = gemini_func(username, data, db)
+                await manager.send_personal_message(f"{result}", username)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
