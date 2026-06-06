@@ -122,3 +122,12 @@ def get_film_score(id ,db: Session) -> dict:
         
 
 
+
+    
+
+# def last_added(username, db):
+#     user_id = get_user_id(username, db)
+#     trusted = db.query(Favorites.id, Favorites.added_at, Movies.title, Movies.sentiment, Movies.sentiment_trust).filter(Favorites.user_id == user_id).join(Movies, Favorites.movie_id == Movies.id).order_by(Favorites.added_at.desc()).first()
+#     if not trusted:
+#         return "nothing in the favorites list"
+#     return f"Last film added on favorites: {trusted.title}"

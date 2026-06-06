@@ -1,4 +1,4 @@
-from app.models import Favorites, Movies
+from app.models import Favorites, Movies, ChatHistory
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from datetime import date
@@ -97,3 +97,24 @@ def last_added(username, db):
     if not trusted:
         return "nothing in the favorites list"
     return f"Last film added on favorites: {trusted.title}"
+
+
+
+"""
+save on the chat history
+"""
+def save_chat(user_id, user_question, ai_response, db:Session) -> dict:
+    chat = ChatHistory(user_id=user_id, user_question=user_question, ai_response=ai_response, chat_at=date.today())
+    db.add(chat)
+    db.commit()
+    db.refresh(chat)
+    return {'message': 'chat saved!'}
+
+"""
+read last chat history msg
+"""
+def read_chat_history(user_id, db):
+    history = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.chat_at.desc()).first()
+    if not history:
+        return {'ai_response': 'nothing history', 'user_question': 'nothing history'}
+    return {'ai_response': history.ai_response, 'user_question': history.user_question}
