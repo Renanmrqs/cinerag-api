@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.favorites import create_favorite, read_all_favorites
+from app.services.favorites import create_favorite, read_all_favorites, delete_fav
 from app.routes.auth import get_current_user
 from app.services.auth import get_user_id
 
@@ -22,5 +22,15 @@ def get_favorites(user: str = Depends(get_current_user), db: Session = Depends(g
     try:
         favorite = read_all_favorites(user_id, db)
         return favorite
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f'Unexpected error: {e}')
+    
+@router.delete("/films/favorites/del_fav", tags=['favorites'])
+def del_favorite_film(id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        del_film = delete_fav(id, db)
+        if not del_film:
+            raise HTTPException(status_code=400, detail=f'Film not in list')
+        return del_film
     except Exception as e:
         raise HTTPException(status_code=400, detail=f'Unexpected error: {e}')

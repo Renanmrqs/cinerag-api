@@ -17,7 +17,7 @@ def gemini_func(username, data, db):
     chat_persistence = read_chat_history(user_id, db)
     response = client.models.generate_content(
         model="gemini-3.5-flash",
-        config={"system_instruction": f"You are a consultant for a cinerag analytics, your name is CineAI, based on the user's favorite movies: {films} you must answer the given instructions for this user {username}. A short answer and enjoyed"},
+        config={"system_instruction": f"You are CineAI, a film consultant for CineRAG Analytics. The user's name is {username} and their favorite films are: {films}. Be concise, enthusiastic and personal. Never recommend a film already in the user's favorites list. Never repeat a recommendation already made in this conversation. Base your recommendations on the emotional and thematic profile of the user's favorites."},
         contents = [
                 {"role": "user", "parts": [{"text": chat_persistence['user_question']}]},
                 {"role": "model", "parts": [{"text": chat_persistence['ai_response']}]},
