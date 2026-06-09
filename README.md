@@ -27,10 +27,12 @@ API REST + WebSocket de uma plataforma de análise de sentimentos de filmes com 
 - **SQLAlchemy** — ORM
 - **Alembic** — migrations versionadas
 - **PyJWT + Argon2** — autenticação e hash de senhas
+- **Pytest** - Testes integrados no GitHub
 - **Authlib** — Google OAuth2
 - **Google Gemini** — modelo de linguagem para o CineAI
 - **TMDB API** — dados de filmes e reviews
 - **SentimentAI** — modelo próprio de análise de sentimento (deploy no Render)
+
 
 ---
 
