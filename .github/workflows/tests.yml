@@ -16,3 +16,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL}}
           SECRET_KEY: ${{ secrets.SECRET_KEY}}
           TMD_CINERAG: ${{ secrets.TMD_KEY}}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID}}
