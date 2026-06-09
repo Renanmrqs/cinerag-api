@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from faker import Faker
 from pytest import fixture
-import random
+import asyncio
 
 client = TestClient(app)
 
@@ -11,9 +11,13 @@ email = fake.email()
 nome = fake.name()
 name_film = 'Inception'
 
+@fixture
+def register():
+    data = {'username': nome, 'email': email, 'password': 'test1234'}
+    response = client.post('/auth/register', json=data)
 
 @fixture
-def token():
+def token(register):
     form_data = {'username': nome, 'password': 'test1234'}    
     response = client.post('/auth/login', data=form_data)
     return response.json()['access_token']
@@ -28,28 +32,7 @@ def id_film(head):
     return response.json()[0]['id']
     
 
-# @fixture
-# def id_user():    
-#     form_data = {'username': nome, 'password': 'teste1234'}
-#     response = client.post('/login', data=form_data)
-#     return response.json()['user_id']
-    
-# @fixture
-# def id_workout(id_user, head):
-#     data = {'id_user': id_user}
-#     response =  client.post(f'/workout', json=data, headers=head) 
-#     return response.json()['data']['id']
 
-# @fixture 
-# def id_exercise(head):
-#     response =  client.get(f'/exercises', headers=head) 
-#     return response.json()[0]['id']
-
-# @fixture
-# def id_workout_exercise(id_workout, id_exercise, head):
-#     data = {'id_workout': id_workout, 'id_exercise': id_exercise}
-#     response =  client.post(f'/workout_exercise', json=data, headers=head) 
-#     return response.json()['data']['id']
 
 def test_health():
     response =  client.get('/health') 
@@ -69,37 +52,7 @@ def test_login():
 
 
 
-# def test_post_exercise(head):
-#     data = {'exercise': 'Rosca martelo'}
-#     response =  client.post(f'/exercises', params=data, headers=head) 
-#     assert response.status_code == 200
-#     assert 'message' in response.json()
 
-# def test_post_workout(id_user, head):
-#     data = {'id_user': id_user}
-#     response =  client.post(f'/workout', json=data, headers=head) 
-#     assert response.status_code == 200
-#     assert 'id' in response.json()['data']
-
-# def test_post_workout_exercise(id_workout, id_exercise, head):
-#     data = {'id_workout': id_workout, 'id_exercise': id_exercise}
-#     response =  client.post(f'/workout_exercise', json=data, headers=head) 
-#     assert response.status_code == 200
-#     assert  'id' in response.json()['data']
-
-def test_post_favorite(head, id_film):
-    response = client.post(f'/films/favorites/post_film', params={'movie_id': id_film}, headers=head)
-    assert response.status_code == 200
-    assert 'message' in response.json()
-
-# def test_post_sets(id_workout_exercise, head):
-#     weight = random.randint(1, 50)
-#     reps = random.randint(5, 12)
-#     data = {'weight': weight, 'reps': reps, 'id_workout_exercise': id_workout_exercise}
-#     response = client.post(f'/sets', json=data, headers=head) 
-    
-#     assert response.status_code == 200 
-#     assert  'message' and 'pr' in response.json()
 
 
 def test_get_film(head):
@@ -107,26 +60,39 @@ def test_get_film(head):
     assert response.status_code in [200, 400]
     assert isinstance(response.json(), list)
 
-# def test_get_exercises(head):
-#     response = client.get('/exercises', headers=head) 
-#     assert response.status_code == 200
-#     assert isinstance(response.json(), list)
-    
-# def test_get_history(head):
-#     response = client.get(f'history/{nome}', headers=head)
-#     assert response.status_code in [200, 400]
-#     assert isinstance(response.json(), list)
 
 def test_get_score(head, id_film):
     response = client.get(f'/films/get_score/{id_film}', headers=head)
     assert response.status_code in [200, 400]
     assert isinstance(response.json(), dict)
 
-# def test_get_workout_detail(head, id_user):
-#     response = client.get(f'workout_detail_w_user/{id_user}', headers=head)
-#     assert response.status_code in [200, 400]
-#     assert isinstance(response.json(), list)
 
-# def test_logout(head):
-#     response = client.post(f'/logout',  headers=head) 
-#     assert response.status_code in [200, 400]
+
+
+
+def test_post_favorite(head, id_film):
+    response = client.post(f'/films/favorites/post_film', params={'movie_id': id_film}, headers=head)
+    assert response.status_code == 200
+    assert 'message' in response.json()
+
+def test_get_favorites(head):
+    response = client.get('/films/favorites/get_all', headers=head)
+    response.status_code in [200, 400]
+    assert isinstance(response.json(), list)
+
+def test_del_favorite(head, id_film):
+    response = client.delete(f'/films/favorites/del_fav', params={'id': id_film}, headers=head)
+    assert response.status_code in [200, 400]
+
+
+def test_websockets_querys(token):
+    with client.websocket_connect(f'/ws?token={token}') as ws:
+        ws.send_text('/positives')
+        data = ws.receive_text()
+        assert data is not None
+
+def test_websockets_gemini(token):
+    with client.websocket_connect(f'/ws?token={token}') as ws:
+        ws.send_text('oi me indica um filme')
+        data = ws.receive_text()
+        assert data is not None

@@ -44,4 +44,4 @@ async def websocket_endpoint(websocket: WebSocket, token: str, db: Session = Dep
                 result = gemini_func(username, data, db)
                 await manager.send_personal_message(f"{result}", username)
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(websocket, username)
