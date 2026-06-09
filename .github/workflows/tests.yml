@@ -13,6 +13,6 @@ jobs:
       - run: pip install -r requirements.txt
       - run: pytest tests/cinerag.py
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_CINERAG}}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL}}
+          SECRET_KEY: ${{ secrets.SECRET_KEY}}
           TMD_CINERAG: ${{ secrets.TMD_KEY}}
