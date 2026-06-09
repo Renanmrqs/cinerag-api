@@ -114,7 +114,12 @@ def save_chat(user_id, user_question, ai_response, db:Session) -> dict:
 read last chat history msg
 """
 def read_chat_history(user_id, db):
-    history = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.chat_at.desc()).first()
+    history = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.chat_at.asc()).limit(3).all()
     if not history:
         return {'ai_response': 'nothing history', 'user_question': 'nothing history'}
-    return {'ai_response': history.ai_response, 'user_question': history.user_question}
+    ai = []
+    user = []
+    for c in history:
+        ai.append(c.ai_response)
+        user.append(c.user_question)
+    return {'ai_response': ai, 'user_question': user}

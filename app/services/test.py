@@ -2,9 +2,9 @@ import asyncio
 import websockets
 
 async def test():
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXJsb3MiLCJleHAiOjE3ODA3ODEyNjR9.lLuEMppRI_9PZFKV3wXKbFDHbt4g5Pk6kD0mTAsFatU"
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXJsb3MiLCJleHAiOjE3ODA5NzEwNTB9.0S7b4TXZSiUZoxTuT3x-B-3As9_OJmlItrSMnr55xl4"
     async with websockets.connect(f"ws://127.0.0.1:8000/ws?token={token}") as ws:
-        await ws.send("ja vi, puxa outro ai")
+        await ws.send("opa, gostei desse vou ver e te aviso")
         print(await ws.recv())
         
 
