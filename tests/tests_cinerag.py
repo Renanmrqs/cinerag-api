@@ -88,7 +88,7 @@ def test_login():
 #     assert  'id' in response.json()['data']
 
 def test_post_favorite(head, id_film):
-    response = client.post(f'/films/favorites/post_film/{id_film}', headers=head)
+    response = client.post(f'/films/favorites/post_film', params={'movie_id': id_film}, headers=head)
     assert response.status_code == 200
     assert 'message' in response.json()
 
