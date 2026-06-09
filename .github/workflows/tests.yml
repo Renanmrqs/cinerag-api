@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
-      - run: pytest tests/cinerag.py
+      - run: python -m pytest tests/tests_cinerag.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL}}
           SECRET_KEY: ${{ secrets.SECRET_KEY}}
