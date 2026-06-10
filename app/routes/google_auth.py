@@ -39,11 +39,13 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
 
         # Generate a JWT token with auth_method="google"
         user = get_users_by_identifier(email, db)
+        
         if not user:
-            create_register(db, email, email, "google_oauth")
+            user = create_register(db, email, email, "google_oauth")
+        
         access_token = generate_token(email, user.id)
+        
         frontend_url = f'https://cinerag-analytics.vercel.app/index.html?token={access_token}'
-
         return RedirectResponse(url=frontend_url)
     except Exception as e:
         import traceback
