@@ -42,7 +42,7 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
         if not user:
             create_register(db, email, email, "google_oauth")
         access_token = generate_token(email)
-        frontend_url = f'https://cinerag-analytics.vercel.app/home.html?token={access_token}'
+        frontend_url = f'https://cinerag-analytics.vercel.app/index.html?token={access_token}'
 
         return RedirectResponse(url=frontend_url)
     except Exception as e:
