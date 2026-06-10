@@ -10,9 +10,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-def generate_token(username):
+def generate_token(username, user_id):
     timestampe = datetime.now(timezone.utc) + timedelta(hours=2)
-    dictionary_user = {"sub": username, "exp": timestampe}
+    dictionary_user = {"sub": str(user_id), 'username': username, "exp": timestampe}
     token = jwt.encode(dictionary_user, SECRET_KEY, algorithm="HS256")
     return token
 

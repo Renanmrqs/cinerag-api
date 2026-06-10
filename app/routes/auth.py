@@ -57,7 +57,8 @@ def post_login(form_data: security.OAuth2PasswordRequestForm = Depends(), db: Se
     if password_corrrect == False:
         raise HTTPException(status_code=400, detail=f'incorrect password, try again.')
     
-    token = generate_token(form_data.username)
+    
+    token = generate_token(form_data.username, login_return.id)
     
     return {"access_token": token, "token_type": "bearer", "user_id": login_return.id}
 
