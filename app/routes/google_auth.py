@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.auth import generate_token
-from app.services.auth import get_users_by_identifier, create_register
+from app.services.auth import get_users_by_identifier, create_register_google
 
 load_dotenv()
 
@@ -41,7 +41,7 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
         user = get_users_by_identifier(email, db)
         
         if not user:
-            user = create_register(db, email, email, "google_oauth")
+            user = create_register_google(db, email, email, "google_oauth")
         
         access_token = generate_token(email, user.id)
         

@@ -31,7 +31,14 @@ def get_users_by_identifier(identifier, db: Session):
 
 # adiciona um user na tabela user
 def create_register(db: Session, email, username, password):
-    user = Users(email=email, username=username, password=password)
+    user = Users(email=email, username=username, password=password, is_profile_complete=True)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def create_register_google(db: Session, email, username, password):
+    user = Users(email=email, username=username, password=password, is_profile_complete=False)
     db.add(user)
     db.commit()
     db.refresh(user)

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, CheckConstraint, Float, Boolean, UniqueConstraint
+from sqlalchemy import Integer, Column, ForeignKey, DateTime, BigInteger, Text, text, CheckConstraint, Float, Boolean, UniqueConstraint
 from sqlalchemy.orm import declarative_base
 from datetime import datetime, timezone, timedelta
 import enum
@@ -19,6 +19,7 @@ class Users(Base):
     email = Column(Text, nullable=False, unique=True)
     password = Column(Text, nullable=False) 
     username = Column(Text, nullable=False, unique=True)
+    is_profile_complete = Column(Boolean, default=True, server_default=text('true'), nullable=False)
 
 ##
 # MODELO PARA TABELA MOVIES
