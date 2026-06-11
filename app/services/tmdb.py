@@ -48,7 +48,10 @@ def get_movie_sentiment(list_review: list) -> dict:
     
     for review in list_review:
         response = requests.post(url, json={"text": review})
+        if response.status_code != 200 or not response.text:
+            continue  # pula essa review e vai pra próxima
         data = response.json()
+        
         match data['sentiment']:
             case 'positive':
                 sentiment_score_dict['positive'] += 1
