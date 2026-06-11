@@ -76,7 +76,7 @@ def post_logout(token: str = Depends(get_current_token), user: str = Depends(get
         raise HTTPException(status_code=400, detail=f'token already in table')
 
 
-@router.patch(f'/auth/users/complete-profile', tags=['auth'])
+@router.patch(f'/auth/complete-profile', tags=['auth'])
 def complete_profile(register: RegisterGoogle,  db: Session = Depends(get_db)):
     try:
         password_criptografed = pwd_context.hash(register.password)
