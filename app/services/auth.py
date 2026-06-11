@@ -48,6 +48,7 @@ def update_register(db: Session, username, password, id):
     user = db.query(Users).filter(Users.id == id).first()
     user.username = username
     user.password = password
+    user.is_profile_complete = True
     db.commit()
     db.refresh(user)
     return user
