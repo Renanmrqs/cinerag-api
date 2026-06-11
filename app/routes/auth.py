@@ -17,6 +17,8 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(securit
     blacklist = read_tokens(db, token)
     if not blacklist:
         user  = verify_token(token)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
         return user
     raise HTTPException(status_code=401, detail='token expired')
 
