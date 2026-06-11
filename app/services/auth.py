@@ -44,8 +44,8 @@ def create_register_google(db: Session, email, username, password):
     db.refresh(user)
     return user
 
-def update_register(db: Session, username, password, email):
-    user = db.query(Users).filter(Users.email == email).first()
+def update_register(db: Session, username, password, id):
+    user = db.query(Users).filter(Users.id == id).first()
     user.username = username
     user.password = password
     db.commit()

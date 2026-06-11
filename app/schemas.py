@@ -15,3 +15,4 @@ class RegisterRequest(BaseModel):
 class RegisterGoogle(BaseModel):
     username: str
     password: str
+    id: int

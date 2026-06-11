@@ -75,11 +75,14 @@ def post_logout(token: str = Depends(get_current_token), user: str = Depends(get
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'token already in table')
 
+
 @router.patch(f'/auth/users/complete-profile', tags=['auth'])
-def complete_profile(register: RegisterGoogle, email: str = Depends(get_current_user),  db: Session = Depends(get_db)):
+def complete_profile(register: RegisterGoogle,  db: Session = Depends(get_db)):
     try:
         password_criptografed = pwd_context.hash(register.password)
-        update_register(db, register.username, password_criptografed, email)
+        update_register(db, register.username, password_criptografed, register.id)
         return {"message": f"user {register.username} updated"}
     except IntegrityError:
-        raise HTTPException(status_code=400, detail=f'{register.username} not in table')
+        raise HTTPException(status_code=400, detail=f'{register.id} not in table')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Unexpected error: {e}')
