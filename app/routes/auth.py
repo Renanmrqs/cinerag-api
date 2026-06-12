@@ -81,7 +81,7 @@ def complete_profile(register: RegisterGoogle,  db: Session = Depends(get_db)):
     try:
         password_criptografed = pwd_context.hash(register.password)
         update_register(db, register.username, password_criptografed, register.id)
-        new_token = generate_token(register.username)
+        new_token = generate_token(register.username, register.id)
         return {"message": f"user {register.username} updated", "access_token": new_token}
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'{register.id} not in table')
