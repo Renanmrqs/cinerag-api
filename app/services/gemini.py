@@ -11,6 +11,8 @@ print(os.getenv("GEMINI_API_KEY"))
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
+# TODO: estrutura incorreta, funciona por coincidência - corrigir quando refatorar gemini
+
 def gemini_func(username, data, db):
     user_id = get_user_id(username, db)
     films = readl_all_films(user_id, db)
@@ -20,10 +22,7 @@ def gemini_func(username, data, db):
     response = client.models.generate_content(
         model="gemini-3.5-flash",
         config={"system_instruction": f"You are CineAI, a film consultant for CineRAG Analytics. The user's name is {username} and their favorite films are: {films}. Be concise, enthusiastic and personal. Never recommend a film already in the user's favorites list. Never repeat a recommendation already made in this conversation. Base your recommendations on the emotional and thematic profile of the user's favorites."},
-        contents= [
-                # [c for c in user_list],
-                # [m for m in model_list],
-                
+        contents= [                
                 {"role": "user", "parts": [{"text": c for c in chat_persistence['user_question']}]},
                 {"role": "model", "parts": [{"text": c for c in chat_persistence['ai_response']}]},                        
                 {"role": "user", "parts": [{"text": data}]}]
