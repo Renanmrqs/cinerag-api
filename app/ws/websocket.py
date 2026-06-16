@@ -5,7 +5,7 @@ from app.database import get_db
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.services.chat import positive_movie, smaller_trusted, most_trusted, negative_movie, mixed_movie, count_films, first_added, last_added
-from app.services.gemini import gemini_func
+from app.ai.context_builder import gemini_func
 
 router = APIRouter()
 

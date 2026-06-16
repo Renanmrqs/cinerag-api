@@ -101,7 +101,7 @@ def get_film_score(id ,db: Session) -> dict:
 
     # using the movie sentiment and detail for saving on db
 
-    movie_sentiment = get_movie_sentiment(reviews[:10]) 
+    movie_sentiment = get_movie_sentiment(reviews[:30]) 
     detail_movie = get_detail_movie(id)
     
     if movie_sentiment['positive'] > movie_sentiment['negative']:
@@ -117,18 +117,8 @@ def get_film_score(id ,db: Session) -> dict:
     db.refresh(movie)
     return {'sentiment': sentiment, 'trust': movie_sentiment['trust'], 'title': detail_movie['title'], 'sample_reviews': reviews[:3]}
 
-    """_summary_
-    retornar ao menos 3 reviews por filme sacou
-    """
-        
 
 
 
     
 
-# def last_added(username, db):
-#     user_id = get_user_id(username, db)
-#     trusted = db.query(Favorites.id, Favorites.added_at, Movies.title, Movies.sentiment, Movies.sentiment_trust).filter(Favorites.user_id == user_id).join(Movies, Favorites.movie_id == Movies.id).order_by(Favorites.added_at.desc()).first()
-#     if not trusted:
-#         return "nothing in the favorites list"
-#     return f"Last film added on favorites: {trusted.title}"

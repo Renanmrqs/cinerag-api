@@ -2,13 +2,12 @@ import asyncio
 import websockets
 
 async def test():
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXJsb3MiLCJleHAiOjE3ODA5NzEwNTB9.0S7b4TXZSiUZoxTuT3x-B-3As9_OJmlItrSMnr55xl4"
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMjQiLCJ1c2VybmFtZSI6InJlbmFuIiwiZXhwIjoxNzgxNjM2OTI5fQ.c-4whDuw4QyKsloYCQRJQHRsbexz6gGMbLx7PhN4dgY"
     async with websockets.connect(f"ws://127.0.0.1:8000/ws?token={token}") as ws:
-        await ws.send("opa, gostei desse vou ver e te aviso")
+        await ws.send("porra agora tu veio, um dos meus preferidos pqp sai ate do personagem")
         print(await ws.recv())
         
 
 
 asyncio.run(test())
 
-#test dificl
