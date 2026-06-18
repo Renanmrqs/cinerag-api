@@ -1,29 +1,25 @@
 from app.models import Movies
-import requests
+from app.clients.tmdb_client import client_get_films, client_get_reviews_from_movies, client_get_detail_movie
+from app.clients.sentiment_client import client_movie_sentiment
 from sqlalchemy.orm import Session
 from datetime import date
 
-headers = {
-"accept": "application/json",
-"Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjYTA2ZTY3MzM2ZTg0M2FhZjE3NTQ0NTIyOGI4MzgzOSIsIm5iZiI6MTc3OTM5MTE3NC4zNzIsInN1YiI6IjZhMGY1YWM2ZjYyY2MwNDYwZDNkZWUwMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.FvRvl9AxiznUHTog4JvdPPVjbgUrHyAr65iecv3cVQM"
-}
 
 
 """
 function for search film and added in a list, 
 for show the user when her searched
 """
-def get_films(film) -> dict:
-    url = "https://api.themoviedb.org/3/search/movie"
+
+def get_films(film) -> list:
+    data = client_get_films(film)
     films_listed = []
-    response = requests.get(url, headers=headers, params={"query": f"{film}"})
-    data = response.json()
     
     for result in data['results']:
-        reviews = get_reviews_from_movies(result['id'])
+        reviews = client_get_reviews_from_movies(result['id'])
 
         films = {'id': '', 'title': '', 'language': '', 'overview': '', 'release_date': ''}
-        if result['id'] not in [films_listed]:  
+        if not any(f['id'] == result['id'] for f in films_listed):  
             films.update({'id': result['id'], 
             'title': result['title'],
             'language': result['original_language'],
@@ -41,14 +37,13 @@ def get_films(film) -> dict:
 auxiliar function: to search my own predict model, using the reviews from tmdb
 """
 def get_movie_sentiment(list_review: list) -> dict:
-    url = "https://sentimentai-api.onrender.com/predict"
     sentiment_score_dict = {'positive': 0, 'negative': 0,
     'trust': 0}
     total_reviews = len(list_review)
     
     for review in list_review:
-        response = requests.post(url, json={"text": review})
-        data = response.json()
+        
+        data = client_movie_sentiment(review)
         
         match data['sentiment']:
             case 'positive':
@@ -63,32 +58,13 @@ def get_movie_sentiment(list_review: list) -> dict:
     return sentiment_score_dict
 
 
-"""
-auxiliar function: using for saving the data of movies if not in db
-"""
-def get_detail_movie(id: int) -> dict:
-    url = f"https://api.themoviedb.org/3/movie/{id}"
-    response = requests.get(url, headers=headers)
-    data = response.json()
-    return data
-
-
-"""
-auxiliar function: using for searchin each reviews for a movie id
-"""
-def get_reviews_from_movies(id: int) -> dict:
-    url = f"https://api.themoviedb.org/3/movie/{id}/reviews"
-    response = requests.get(url, headers=headers)
-    data = response.json()
-    return data
-
 
 """
 function for search a film with id, return score(positive or negative or mixed and trusted)
 and save this on db for pertinence
 """
 def get_film_score(id ,db: Session) -> dict:
-    data = get_reviews_from_movies(id)
+    data = client_get_reviews_from_movies(id)
     reviews = []
     for result in data["results"]:
         reviews.append(result["content"])  
@@ -98,11 +74,10 @@ def get_film_score(id ,db: Session) -> dict:
         return {'sentiment': movie.sentiment, 'trust': movie.sentiment_trust, 'title': movie.title, 'sample_reviews': reviews[:3]}
   
 
-
     # using the movie sentiment and detail for saving on db
 
     movie_sentiment = get_movie_sentiment(reviews[:30]) 
-    detail_movie = get_detail_movie(id)
+    detail_movie = client_get_detail_movie(id)
     
     if movie_sentiment['positive'] > movie_sentiment['negative']:
         sentiment = 'positive'

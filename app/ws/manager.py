@@ -1,5 +1,5 @@
-from fastapi import  WebSocket
-from app.services.chat import positive_movie
+from fastapi import WebSocket
+from app.services.querys_service import positive_movie
 
 
 class ConnectionManager():

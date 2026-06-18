@@ -1,10 +1,10 @@
-from app.services.auth import add_token, read_tokens
+from app.services.users_service import add_token, read_tokens
 from sqlalchemy.orm import Session
 from app.database import get_db
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, security, HTTPException
 from app.auth import pwd_context, generate_token, verify_token
-from app.services.auth import get_users_by_identifier, get_users, create_register, update_register
+from app.services.users_service import get_users_by_identifier, get_users, create_register, update_register
 from app.schemas import RegisterRequest, RegisterGoogle
 
 

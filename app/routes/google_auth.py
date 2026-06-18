@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.auth import generate_token
-from app.services.auth import get_users_by_identifier, create_register_google
+from app.services.users_service import get_users_by_identifier, create_register_google
 
 load_dotenv()
 
