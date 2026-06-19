@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from datetime import date
 from app.services.users_service import get_user_id
-
+from app.core.logging import logger
 
 """
 search all positive films
@@ -94,22 +94,30 @@ def last_added(username, db):
 save on the chat history
 """
 def save_chat(user_id, user_question, ai_response, db:Session) -> dict:
-    chat = ChatHistory(user_id=user_id, user_question=user_question, ai_response=ai_response, chat_at=date.today())
-    db.add(chat)
-    db.commit()
-    db.refresh(chat)
-    return {'message': 'chat saved!'}
+    try:
+        chat = ChatHistory(user_id=user_id, user_question=user_question, ai_response=ai_response, chat_at=date.today())
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        return {'message': 'chat saved!'}
+    except Exception as e:
+        logger.error(f"Save Chat error: {e}")
+        raise
 
 """
 read last chat history msg
 """
 def read_chat_history(user_id, db):
-    history = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.chat_at.asc()).limit(3).all()
-    if not history:
-        return {'ai_response': 'nothing history', 'user_question': 'nothing history'}
-    ai = []
-    user = []
-    for c in history:
-        ai.append(c.ai_response)
-        user.append(c.user_question)
-    return {'ai_response': ai, 'user_question': user}
+    try:
+        history = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.chat_at.asc()).limit(3).all()
+        if not history:
+            return {'ai_response': 'nothing history', 'user_question': 'nothing history'}
+        ai = []
+        user = []
+        for c in history:
+            ai.append(c.ai_response)
+            user.append(c.user_question)
+        return {'ai_response': ai, 'user_question': user}
+    except Exception as e:
+        logger.error(f"read chat history error: {e}")
+        raise

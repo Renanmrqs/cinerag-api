@@ -8,19 +8,20 @@ from app.services.users_service import get_users_by_identifier, get_users, creat
 from app.schemas import RegisterRequest, RegisterGoogle
 
 
-
 # verificações de login e funcoes auxiliares
 router = APIRouter()
 security_rote = security.OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(security_rote)):
     blacklist = read_tokens(db, token)
-    if not blacklist:
-        user  = verify_token(token)
+    try:
+        if not blacklist:
+            user  = verify_token(token)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         return user
-    raise HTTPException(status_code=401, detail='token expired')
+    except Exception as e:
+        raise HTTPException(status_code=401, detail='token expired')
 
 def get_current_token(token: str = Depends(security_rote)):
     return token
@@ -45,7 +46,8 @@ def post_register(register: RegisterRequest, db: Session = Depends(get_db)):
         return {"message": f"user {register.username} registred"}
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'{register.username} already in table')
-    
+    except Exception as e:
+        raise  HTTPException(status_code=400, detail=f'{register.username} ERROR: {e}')
 
 
 # faz rota do usuario logar na aplicacao
