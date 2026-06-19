@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.favorites import create_favorite, read_all_favorites, delete_fav
+from app.services.favorites_service import create_favorite, read_all_favorites, delete_fav
 from app.routes.auth import get_current_user
-from app.services.auth import get_user_id
+from app.services.users_service import get_user_id
 
 router = APIRouter()
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.tmdb import get_films, get_film_score
+from app.services.movies_service import get_films, get_film_score
 from app.routes.auth import get_current_user
 
 router = APIRouter()

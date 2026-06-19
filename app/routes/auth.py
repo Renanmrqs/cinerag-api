@@ -1,12 +1,11 @@
-from app.services.auth import add_token, read_tokens
+from app.services.users_service import add_token, read_tokens
 from sqlalchemy.orm import Session
 from app.database import get_db
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, security, HTTPException
 from app.auth import pwd_context, generate_token, verify_token
-from app.services.auth import get_users_by_identifier, get_users, create_register, update_register
+from app.services.users_service import get_users_by_identifier, get_users, create_register, update_register
 from app.schemas import RegisterRequest, RegisterGoogle
-
 
 
 # verificações de login e funcoes auxiliares
@@ -15,12 +14,14 @@ security_rote = security.OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(security_rote)):
     blacklist = read_tokens(db, token)
-    if not blacklist:
-        user  = verify_token(token)
+    try:
+        if not blacklist:
+            user  = verify_token(token)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         return user
-    raise HTTPException(status_code=401, detail='token expired')
+    except Exception as e:
+        raise HTTPException(status_code=401, detail='token expired')
 
 def get_current_token(token: str = Depends(security_rote)):
     return token
@@ -45,7 +46,8 @@ def post_register(register: RegisterRequest, db: Session = Depends(get_db)):
         return {"message": f"user {register.username} registred"}
     except IntegrityError:
         raise HTTPException(status_code=400, detail=f'{register.username} already in table')
-    
+    except Exception as e:
+        raise  HTTPException(status_code=400, detail=f'{register.username} ERROR: {e}')
 
 
 # faz rota do usuario logar na aplicacao
