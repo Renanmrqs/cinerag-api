@@ -1,0 +1,3 @@
+  fix-tmdb-fstring[m bfa30c5 fix: adjusts prompt fstring
+* [32mmain            [m 6f29806 chore: commit vazio para testes~
+  refactor-cinerag[m 5b4512c fetch: adicionando log em todas as rotas
