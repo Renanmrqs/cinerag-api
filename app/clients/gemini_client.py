@@ -14,7 +14,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 def gemini_func(username, data, db):
     logger.info(f"gemini request - user: {username} | message: {data}")
     context = context_builder(username, db)
-    
+    print(context)
     try:
         response = client.models.generate_content(
             model="gemini-3.1-flash-lite",
