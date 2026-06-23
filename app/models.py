@@ -78,3 +78,23 @@ class Tokens(Base):
     __tablename__ = 'expired_tokens'
     id = Column(BigInteger, primary_key=True)
     token = Column(Text, nullable=False, unique=True)
+
+##
+# MODELO PARA A TABELA GENEROS
+class Genres(Base):
+    __tablename__ = 'genres'
+    id = Column(BigInteger, primary_key=True, autoincrement=False)
+    name = Column(Text, nullable=False)
+
+##
+# MODELO PARA A TABELA DE PREFENCIAS DO USUARIO
+class UserPreferences(Base):
+    __tablename__ = 'user_preferences'
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    genre_id = Column(BigInteger, ForeignKey("genres.id"), nullable=False)
+    score = Column(BigInteger, nullable=False)
+
+    __tableargs__ = (
+        CheckConstraint("score >= 0", name="check_score_minimun" )
+    )

@@ -14,10 +14,10 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 def gemini_func(username, data, db):
     logger.info(f"gemini request - user: {username} | message: {data}")
     context = context_builder(username, db)
-    
+    print(context)
     try:
         response = client.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-3.1-flash-lite",
             config={"system_instruction": normal_prompt(username, context)},
             contents= [                
                     {"role": "user", "parts": [{"text": c for c in context['chat_persistence']['user_question']}]},
