@@ -39,6 +39,13 @@ def readl_all_films(user_id, db:Session) -> dict:
     return [{"title": r.title} for r in favorite_table]
 
 """
+read score genres for user
+"""
+def read_genres_user(user_id, db:Session) -> dict:
+    preferences_genres = db.query(UserPreferences.id, UserPreferences.score, Genres.name).filter(UserPreferences.user_id == user_id).join(Genres, UserPreferences.genre_id == Genres.id).all()
+    return [{"genre name": g.name, "score": g.score} for g in preferences_genres]
+
+"""
 delete a fav
 """
 def delete_fav(id, db:Session) -> dict:
