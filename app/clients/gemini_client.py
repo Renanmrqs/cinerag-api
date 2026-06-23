@@ -17,7 +17,7 @@ def gemini_func(username, data, db):
     
     try:
         response = client.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-3.1-flash-lite",
             config={"system_instruction": normal_prompt(username, context)},
             contents= [                
                     {"role": "user", "parts": [{"text": c for c in context['chat_persistence']['user_question']}]},
