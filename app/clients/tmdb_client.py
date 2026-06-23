@@ -7,7 +7,7 @@ load_dotenv()
 
 headers = {
 "accept": "application/json",
-"Authorization": f"Bearer {os.getenv("TMDB_TOKEN")}"
+"Authorization": f"Bearer {os.getenv('TMDB_TOKEN')}"
 }
 
 """
