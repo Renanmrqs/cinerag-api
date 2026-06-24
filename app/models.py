@@ -98,3 +98,4 @@ class UserPreferences(Base):
     __tableargs__ = (
         CheckConstraint("score >= 0", name="check_score_minimun" )
     )
+    
