@@ -64,7 +64,7 @@ def post_login(form_data: security.OAuth2PasswordRequestForm = Depends(), db: Se
     
     token = generate_token(form_data.username, login_return.id)
     
-    return {"access_token": token, "token_type": "bearer", "user_id": login_return.id, 'username': form_data.username}
+    return {"access_token": token, "token_type": "bearer", "user_id": login_return.id, 'username': login_return.username}
 
 
 ## rota de logout 
