@@ -39,6 +39,15 @@ def read_all_users(db: Session = Depends(get_db), user: str = Depends(get_curren
 # ##faz a rota de criar o registro    
 @router.post("/auth/register", tags=['auth'])
 def post_register(register: RegisterRequest, db: Session = Depends(get_db)):
+    if len(register.password) < 8:
+        raise HTTPException(status_code=400, detail=f"the password needs to be 8 charachteres")
+    if not any(w.islower() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be a lower word")
+    if not any(w.isupper() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be a upper word")
+    if not any(w.isdigit() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be one number or more")
+
     try:
         password_criptografed = pwd_context.hash(register.password)
         create_register(db, register.email, register.username, password_criptografed)
