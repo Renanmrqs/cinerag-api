@@ -23,6 +23,7 @@ def verify_token(token: str):
         username = payload.get("username")
         if username is None: 
             raise HTTPException(status_code=401, detail="Invalid token")
+        
         return username
     
     except jwt.DecodeError:

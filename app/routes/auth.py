@@ -19,6 +19,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(securit
             user  = verify_token(token)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
+
         return user
     except Exception as e:
         raise HTTPException(status_code=401, detail='token expired')
@@ -88,13 +89,24 @@ def post_logout(token: str = Depends(get_current_token), user: str = Depends(get
 
 
 @router.patch(f'/auth/complete-profile', tags=['auth'])
-def complete_profile(register: RegisterGoogle,  db: Session = Depends(get_db)):
+def complete_profile(register: RegisterGoogle,  user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    
+    if len(register.password) < 8:
+        raise HTTPException(status_code=400, detail=f"the password needs to be 8 charachteres")
+    if not any(w.islower() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be a lower word")
+    if not any(w.isupper() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be a upper word")
+    if not any(w.isdigit() for w in register.password):
+        raise HTTPException(status_code=400, detail=f"the password needs to be one number or more")
+    
     try:
+        user_return = get_users_by_identifier(user, db)
         password_criptografed = pwd_context.hash(register.password)
-        update_register(db, register.username, password_criptografed, register.id)
-        new_token = generate_token(register.username, register.id)
-        return {"message": f"user {register.username} updated", "access_token": new_token}
+        update_register(db, register.username, password_criptografed, user_return.id)
+        new_token = generate_token(register.username, user_return.id)
+        return {"message": f"user {register.username} updated", "access_token": new_token, "user_id": user_return.id}
     except IntegrityError:
-        raise HTTPException(status_code=400, detail=f'{register.id} not in table')
+        raise HTTPException(status_code=400, detail=f'{user_return.username} not in table')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Unexpected error: {e}')

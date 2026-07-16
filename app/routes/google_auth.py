@@ -25,7 +25,7 @@ oauth.register(
 
 @router.get("/auth/google", tags=["auth"])
 async def auth_google(request: Request):
-    return await oauth.google.authorize_redirect(request, redirect_uri="https://cinerag-api.onrender.com/auth/google/callback")
+    return await oauth.google.authorize_redirect(request, redirect_uri="http://127.0.0.1:8000/auth/google/callback")
 
 
 @router.get("/auth/google/callback", tags=["auth"])
