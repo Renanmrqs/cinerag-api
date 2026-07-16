@@ -17,7 +17,9 @@ def client_get_films(film) -> dict:
     url = "https://api.themoviedb.org/3/search/movie"
     try:
         response = requests.get(url, headers=headers, params={"query": f"{film}"})
+        print(response.status_code)
         data = response.json()
+        print(data)
         return data
     except Exception as e:
         logger.error(f"TMDB API error: {e}")
