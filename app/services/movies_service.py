@@ -18,13 +18,14 @@ def get_films(film) -> list:
         for result in data['results']:
             reviews = client_get_reviews_from_movies(result['id'])
 
-            films = {'id': '', 'title': '', 'language': '', 'overview': '', 'release_date': ''}
+            films = {'id': '', 'title': '', 'language': '', 'overview': '', 'release_date': '', 'poster_path': '', }
             if not any(f['id'] == result['id'] for f in films_listed):  
                 films.update({'id': result['id'], 
                 'title': result['title'],
                 'language': result['original_language'],
                 'overview': result['overview'],
                 'release_date': result['release_date'],
+                'poster_path': result['poster_path'],
                 'has_reviews': True
                 })
                 if len(reviews['results']) < 1:
